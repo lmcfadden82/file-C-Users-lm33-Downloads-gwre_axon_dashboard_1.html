@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GWRE vs AXON — Investment Committee Dashboard</title>
+<style>
+:root{--navy:#0d1b2a;--navy-mid:#1a2e45;--slate:#2c4158;--gold:#c9a84c;--gold-light:#e8c97a;--cream:#f7f4ee;--white:#ffffff;--text-main:#1a1a2e;--text-muted:#5a6475;--gwre:#1e6fba;--gwre-lt:#d0e8f7;--axon:#c45c1e;--axon-lt:#fce5d2;--border:#dde3ec;--green:#2d7a4f;--green-lt:#d4edde;--red:#a83232;--red-lt:#f7d9d9;--amber:#b8720a;--amber-lt:#fdf0d0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Georgia,'Times New Roman',serif;background:var(--cream);color:var(--text-main);min-height:100vh}
+.hdr{background:var(--navy);padding:18px 36px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold)}
+.hdr-l{display:flex;align-items:center;gap:16px}
+.badge{font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold);border:1px solid var(--gold);padding:4px 10px;border-radius:2px;text-transform:uppercase}
+.hdr h1{color:#fff;font-size:19px;font-weight:400}
+.hdr-r{font-family:Arial,sans-serif;font-size:11px;color:rgba(255,255,255,.5);text-align:right;line-height:1.6}
+.mtabs{background:var(--navy-mid);display:flex;padding:0 36px;border-bottom:1px solid rgba(255,255,255,.1)}
+.mtab{padding:14px 22px;font-family:Arial,sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,.5);cursor:pointer;border-bottom:3px solid transparent;text-transform:uppercase;letter-spacing:.5px;transition:all .2s}
+.mtab:hover{color:rgba(255,255,255,.85)}
+.mtab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.mtab.gw.active{color:#7ec8f0;border-bottom-color:#7ec8f0}
+.mtab.ax.active{color:#f0a07e;border-bottom-color:#f0a07e}
+.mtab.wt.active{color:#7ed4a8;border-bottom-color:#7ed4a8}
+.panel{display:none}.panel.active{display:block}
+.cohead{padding:26px 36px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.cohead.gw{background:linear-gradient(135deg,#0d1b2a,#1e4070)}
+.cohead.ax{background:linear-gradient(135deg,#1a0f07,#7a2e0e)}
+.coname{color:#fff;font-size:28px;font-weight:400;letter-spacing:1px}
+.cosub{color:rgba(255,255,255,.6);font-family:Arial,sans-serif;font-size:12px;margin-top:6px}
+.stats{display:flex;gap:12px;flex-wrap:wrap}
+.sbox{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:10px 14px;text-align:center;min-width:78px}
+.sv{color:var(--gold-light);font-size:16px;font-weight:700;font-family:Arial,sans-serif;display:block}
+.sl{color:rgba(255,255,255,.5);font-size:10px;font-family:Arial,sans-serif;text-transform:uppercase;letter-spacing:.8px;display:block;margin-top:2px}
+.stabs{background:#fff;border-bottom:2px solid var(--border);display:flex;padding:0 36px;overflow-x:auto}
+.stab{padding:12px 16px;font-family:Arial,sans-serif;font-size:11px;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;text-transform:uppercase;letter-spacing:.5px;transition:all .2s}
+.stab:hover{color:var(--navy)}
+.stab.active{color:var(--navy);border-bottom-color:var(--navy)}
+.gwa .stab.active{color:var(--gwre);border-bottom-color:var(--gwre)}
+.axa .stab.active{color:var(--axon);border-bottom-color:var(--axon)}
+.sp{display:none}.sp.active{display:block}
+.ca{padding:30px 36px;max-width:1200px}
+.sec{margin-bottom:34px}
+.st{font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.st.gw{color:var(--gwre);border-bottom-color:var(--gwre-lt)}
+.st.ax{color:var(--axon);border-bottom-color:var(--axon-lt)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:18px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:18px}
+.ct{font-family:Arial,sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:10px}
+.card p{font-size:13.5px;line-height:1.7}
+.bl{list-style:none;padding:0}
+.bl li{padding:7px 0 7px 20px;position:relative;font-size:13.5px;line-height:1.65;border-bottom:1px solid #f0f2f5}
+.bl li:last-child{border-bottom:none}
+.bl li::before{content:"▸";position:absolute;left:0;color:var(--gold);font-size:11px;top:10px}
+.gwb li::before{color:var(--gwre)}
+.axb li::before{color:var(--axon)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.chip{font-family:Arial,sans-serif;font-size:11px;font-weight:600;padding:3px 11px;border-radius:20px}
+.bull{background:var(--green-lt);color:var(--green)}
+.bear{background:var(--red-lt);color:var(--red)}
+.neut{background:var(--amber-lt);color:var(--amber)}
+.vbox{border-radius:10px;padding:20px;margin-top:16px}
+.vbox.bul{background:var(--green-lt);border-left:4px solid var(--green)}
+.vbox.bar{background:var(--red-lt);border-left:4px solid var(--red)}
+.vbox.neu{background:var(--amber-lt);border-left:4px solid var(--amber)}
+.vtit{font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.vbox p{font-size:13.5px;line-height:1.7}
+.aibox{background:#0d1b2a;border-radius:10px;padding:22px;margin-bottom:18px}
+.aib-t{color:var(--gold);font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.aibox p{color:rgba(255,255,255,.85);font-size:13.5px;line-height:1.7}
+.dt{width:100%;border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px}
+.dt th{background:var(--navy);color:rgba(255,255,255,.85);padding:9px 13px;text-align:left;font-size:11px;letter-spacing:.8px;text-transform:uppercase}
+.dt td{padding:9px 13px;border-bottom:1px solid var(--border)}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:nth-child(even) td{background:#f8f9fb}
+.num{text-align:right;font-weight:600}
+.pos{color:var(--green)}.neg{color:var(--red)}
+.fb{background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center}
+.fv{font-size:19px;font-weight:700;font-family:Arial,sans-serif;color:var(--navy);display:block}
+.fl{font-size:10px;font-family:Arial,sans-serif;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-top:3px;display:block}
+.fc{font-size:11px;font-family:Arial,sans-serif;font-weight:600;margin-top:3px;display:block}
+.pq{border-left:4px solid var(--gold);padding:13px 18px;background:rgba(201,168,76,.06);margin:18px 0;font-style:italic;font-size:14.5px;line-height:1.7;color:var(--slate)}
+.prose{font-size:13.5px;line-height:1.75}
+/* VS */
+.vshdr{background:linear-gradient(135deg,var(--navy),var(--slate));padding:26px 36px}
+.vstit{color:#fff;font-size:24px}
+.vssub{color:rgba(255,255,255,.55);font-family:Arial,sans-serif;font-size:12px;margin-top:5px}
+.vst{width:100%;border-collapse:collapse}
+.vst th{padding:13px 18px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#fff}
+.vst th.gc{background:var(--gwre)}
+.vst th.ac{background:var(--axon)}
+.vst th.mc{background:var(--navy);color:var(--gold);font-size:11px;letter-spacing:.8px;text-transform:uppercase}
+.vst td{padding:13px 18px;border-bottom:1px solid var(--border);font-size:13px;line-height:1.65;vertical-align:top}
+.vst td.gw{background:#f5faff}
+.vst td.ax{background:#fff8f5}
+.vst td.mid{background:#f0f2f5;font-family:Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);text-align:center}
+.vst td.win{border-left:3px solid var(--green)}
+.fverd{background:var(--navy);border-top:4px solid var(--gold);padding:30px 36px}
+.fverd h2{color:var(--gold);font-size:19px;font-weight:400;margin-bottom:14px}
+.fverd p{color:rgba(255,255,255,.85);font-size:14px;line-height:1.8;margin-bottom:12px}
+.vchips{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+.vc{font-family:Arial,sans-serif;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px}
+.vc.gc{background:var(--gwre);color:#fff}
+.vc.ac{background:var(--axon);color:#fff}
+.vc.gc2{background:var(--gold);color:var(--navy)}
+/* WATCH */
+.whdr{background:linear-gradient(135deg,#0d1b2a,#1a3a2a);padding:26px 36px}
+.wtit{color:#fff;font-size:22px}
+.wsub{color:rgba(255,255,255,.55);font-family:Arial,sans-serif;font-size:12px;margin-top:5px}
+.wc{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px}
+.wch{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#f4f7fb;border-bottom:1px solid var(--border)}
+.wtk{font-family:Arial,sans-serif;font-weight:700;font-size:16px;color:var(--navy)}
+.wnm{font-size:12px;color:var(--text-muted);margin-top:2px}
+.wrt{font-family:Arial,sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--green-lt);color:var(--green)}
+.wb2{padding:18px}
+.wb2 p{font-size:13px;line-height:1.7;margin-bottom:8px}
+.wm{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.wt{font-family:Arial,sans-serif;font-size:10px;font-weight:600;padding:2px 9px;border-radius:12px;background:var(--gwre-lt);color:var(--gwre)}
+@media(max-width:800px){.g2,.g3,.g4{grid-template-columns:1fr}.cohead{flex-direction:column}.ca{padding:18px}.hdr,.mtabs,.stabs{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="badge">William Blair</div>
+    <h1>GWRE vs AXON — Investment Committee Dashboard</h1>
+  </div>
+  <div class="hdr-r">US Large Cap Growth Strategy · 30–40 Names<br>As of July 1, 2026</div>
+</div>
+
+<div class="mtabs">
+  <div class="mtab gw active" onclick="showM('gwre',this)">GWRE</div>
+  <div class="mtab ax" onclick="showM('axon',this)">AXON</div>
+  <div class="mtab active" onclick="showM('vs',this)">GWRE vs AXON</div>
+  <div class="mtab wt" onclick="showM('watch',this)">Watchlist</div>
+</div>
+
+<!-- ===== GWRE ===== -->
+<div class="panel active" id="panel-gwre">
+<div class="cohead gw">
+  <div><div class="coname">Guidewire Software (GWRE)</div><div class="cosub">Core Insurance Platform · P&amp;C · NYSE · FY Ends July</div></div>
+  <div class="stats">
+    <div class="sbox"><span class="sv">$151</span><span class="sl">Price</span></div>
+    <div class="sbox"><span class="sv">~$13B</span><span class="sl">Mkt Cap</span></div>
+    <div class="sbox"><span class="sv">~20%</span><span class="sl">ARR Growth</span></div>
+    <div class="sbox"><span class="sv">~22%</span><span class="sl">Op Margin</span></div>
+    <div class="sbox"><span class="sv">8.8x</span><span class="sl">EV/Rev '26E</span></div>
+  </div>
+</div>
+<div class="stabs gwa">
+  <div class="stab active" onclick="showS('gwre','ov',this)">Overview</div>
+  <div class="stab" onclick="showS('gwre','prod',this)">Products &amp; Revenue</div>
+  <div class="stab" onclick="showS('gwre','comp',this)">Competition</div>
+  <div class="stab" onclick="showS('gwre','ai',this)">AI Risk &amp; Opportunity</div>
+  <div class="stab" onclick="showS('gwre','fin',this)">Financials</div>
+  <div class="stab" onclick="showS('gwre','risk',this)">Risks</div>
+  <div class="stab" onclick="showS('gwre','verd',this)">Investor Verdict</div>
+  <div class="stab" onclick="showS('gwre','ind',this)">Industry Primer</div>
+  <div class="stab" onclick="showS('gwre','op',this)">Operator Lens</div>
+</div>
+
+<div class="sp active" id="gwre-ov"><div class="ca">
+  <div class="sec">
+    <div class="st gw">Business Model</div>
+    <div class="g2">
+      <div class="card"><div class="ct">What Guidewire Actually Does</div><p>Guidewire is the <strong>operating system for P&amp;C insurance carriers</strong>. Think SAP for insurance — it manages the entire claims, billing, and policy administration lifecycle. When a homeowner files a claim after a hurricane, the adjuster's workflow, system of record, and payment processing all run on Guidewire. It is the ERP of insurance, and once embedded, carriers essentially cannot leave.</p></div>
+      <div class="card"><div class="ct">Why the Moat Is So Deep</div><p>Insurance carriers ran on decades-old mainframe systems. Guidewire's cloud-native replacement requires a 3–7 year implementation involving hundreds of staff, deep regulatory encoding, and complete workflow re-engineering. Once complete, switching costs are near-existential — a carrier would need to repeat that entire journey to move to a competitor. No competitor can make that pain go away.</p></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ct">Value Chain Positioning</div><ul class="bl gwb">
+        <li><strong>System of Record:</strong> Guidewire is the data foundation upon which everything else in insurance is built — pricing, underwriting, claims, AI.</li>
+        <li><strong>Open Marketplace:</strong> 150+ third-party vendors (fraud detection, weather data, repair networks) integrate on Guidewire Cloud — a Salesforce AppExchange for insurance.</li>
+        <li><strong>Compounding Data Moat:</strong> Each new cloud customer adds proprietary industry data that no new entrant can replicate, making AI analytics increasingly valuable.</li>
+      </ul></div>
+      <div class="card"><div class="ct">Company History &amp; Cloud Transition</div><ul class="bl gwb">
+        <li><strong>Founded 2001, IPO 2012:</strong> Built to modernize P&amp;C core systems, initially on-premise.</li>
+        <li><strong>Cloud Pivot (~2019–Present):</strong> Multi-tenant cloud migration is the central investment thesis — driving ARR and margin expansion simultaneously.</li>
+        <li><strong>Today:</strong> ~25% of global P&amp;C premium on Guidewire in some form; cloud mix ~50%, creating years of conversion runway.</li>
+        <li><strong>3Q FY2026:</strong> 11 cloud deals closed; ARR $1.147B (+20% YoY); revenue $372.5M (+27% YoY).</li>
+      </ul></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="st gw">Customer Base &amp; End Markets</div>
+    <div class="g3">
+      <div class="card"><div class="ct">Who Buys</div><p>Global P&amp;C carriers from tier-1 multinationals (Zurich, AIG, Allianz, Tokio Marine) to regional carriers. Buyer persona: CIO and Chief Actuary — risk-averse, compliance-driven, with 18–36 month procurement cycles.</p></div>
+      <div class="card"><div class="ct">Revenue Mix</div><p>ARR-based cloud subscription (~55–60% of revenue, growing 39% YoY in 3Q26). Supplemented by professional services (implementation) and declining legacy license revenue. Cloud shift is a dual tailwind: higher recurring revenue + higher gross margins.</p></div>
+      <div class="card"><div class="ct">TAM &amp; Penetration</div><p>Global P&amp;C premium: ~$5 trillion/year. Guidewire captures ~15bps today. Path to 100bps+ over time as AI analytics expand the monetization surface — a 6–7x revenue ceiling expansion from current levels, embedded in the existing customer base.</p></div>
+    </div>
+  </div>
+</div></div>
+
+<div class="sp" id="gwre-prod"><div class="ca">
+  <div class="sec">
+    <div class="st gw">Core Platform — InsuranceSuite Cloud</div>
+    <div class="g2">
+      <div class="card"><div class="ct">PolicyCenter</div><p>Manages the full policy lifecycle: quoting, underwriting, issuance, endorsements, cancellations. The front door of the insurance workflow. Carriers use it to launch new insurance products and manage their book of business.</p></div>
+      <div class="card"><div class="ct">ClaimCenter</div><p>Manages claims from first notice of loss through settlement. Automates adjuster workflows, document management, vendor payments, and litigation tracking. The most operationally complex and stickiest product.</p></div>
+      <div class="card"><div class="ct">BillingCenter</div><p>Premium billing, collections, commissions, and producer payments. Tightly integrated with policy and claims workflows. Often implemented together with PolicyCenter.</p></div>
+      <div class="card"><div class="ct">Guidewire Cloud Platform (GWCP)</div><p>Multi-tenant cloud infrastructure enabling continuous updates, DevOps tooling, and third-party integrations via the Guidewire Marketplace. The migration target for all on-prem customers — a multi-year ARR and margin expansion engine.</p></div>
+    </div>
+    <div class="st gw">New &amp; Adjacent Products (TAM Expansion)</div>
+    <div class="g3">
+      <div class="card"><div class="ct">ProNavigator (Acq. Nov. 2025)</div><p>AI-powered conversational search for brokers to query policy information in natural language. 5 deals closed in 3Q26. Guidewire's first AI product with direct broker-facing workflow impact.</p></div>
+      <div class="card"><div class="ct">PricingCenter (Launched Fall 2025)</div><p>Actuarial rating engine enabling dynamic pricing model adjustments without IT involvement. Addresses critical need for pricing agility in volatile cat-risk environments. 3 deals in 3Q26 across Sweden, Poland, U.S.</p></div>
+      <div class="card"><div class="ct">UnderwritingCenter &amp; Data Analytics</div><p>AI-enabled underwriting and risk selection tools. Leverages Guidewire's proprietary data asset for real-time insights across the insurance lifecycle, reducing reliance on expensive third-party data providers.</p></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="st gw">Revenue Model</div>
+    <table class="dt">
+      <tr><th>Revenue Type</th><th>Description</th><th>Gross Margin</th><th>Growth</th></tr>
+      <tr><td>Subscription &amp; Support (Cloud ARR)</td><td>Recurring SaaS fees priced on DWP or seat basis</td><td class="num pos">~74%</td><td>+39% YoY (3Q26)</td></tr>
+      <tr><td>Professional Services</td><td>Implementation and migration services</td><td class="num neg">~30–35%</td><td>Moderating as cloud mix grows</td></tr>
+      <tr><td>Legacy License</td><td>On-prem perpetual license + maintenance; in decline</td><td class="num">~85%+</td><td>Declining; conversion opportunity</td></tr>
+    </table>
+    <div class="pq">"The company captures ~15bps of global P&amp;C premium today and sees a credible path to 100bps+ over time — a 6–7x revenue expansion opportunity embedded in the existing customer base, without requiring a single new logo."</div>
+  </div>
+</div></div>
+
+<div class="sp" id="gwre-comp"><div class="ca">
+  <div class="sec">
+    <div class="st gw">Competitive Landscape</div>
+    <div class="g2">
+      <div class="card"><div class="ct">Duck Creek Technologies — Primary Competitor</div><p>Most direct P&amp;C core system competitor, now private (Vista Equity). Execution challenges post-privatization. Guidewire wins head-to-head at tier-1 carriers; Duck Creek stronger in mid-market. Guidewire has ~2–3x Duck Creek's revenue. The most legitimate competitive threat to monitor.</p></div>
+      <div class="card"><div class="ct">Sapiens International</div><p>Smaller Israeli competitor stronger in life insurance and EMEA. Not typically competing for the same large-carrier mandates. Not an existential competitive threat in Guidewire's core market.</p></div>
+      <div class="card"><div class="ct">Majesco &amp; Smaller Players</div><p>Mid-market focused competitors. Well below Guidewire in scale, feature depth, and enterprise penetration. Not competitive for tier-1 carrier relationships.</p></div>
+      <div class="card"><div class="ct">Insurtech / AI-Native Startups</div><p>Greenfield cloud-native players (Socotra, INSTANDA) targeting newer or smaller carriers. Not currently competitive for established tier-1 or tier-2 carriers. Long-term risk: if AI dramatically lowers the cost of building compliant insurance software, new entrants could emerge by 2028–2030.</p></div>
+    </div>
+    <div class="st gw">Why Guidewire Wins</div>
+    <ul class="bl gwb">
+      <li><strong>Regulatory compliance depth:</strong> 20+ years encoding 50+ U.S. state frameworks + international requirements. Worth billions in accumulated R&amp;D. Cannot be replicated in under 5 years.</li>
+      <li><strong>Reference customer network:</strong> CIOs at new prospects want to see Guidewire running at peer tier-1 institutions. Zurich, AIG, Allianz, Tokio Marine are themselves a competitive moat.</li>
+      <li><strong>SI ecosystem:</strong> Accenture, Deloitte, Capgemini, and others have built large Guidewire practices — 10,000+ trained consultants. This is Guidewire's de facto sales force.</li>
+      <li><strong>Marketplace network effects:</strong> 150+ pre-integrated partner applications. Each integration makes the platform more valuable and more sticky for carriers.</li>
+    </ul>
+  </div>
+</div></div>
+
+<div class="sp" id="gwre-ai"><div class="ca">
+  <div class="aibox">
+    <div class="aib-t">⚡ AI Disruptability Assessment — Guidewire</div>
+    <p>The standard bull argument is "vertical SaaS with domain expertise is defensible." We push beyond that. The real question is whether AI can commoditize the regulatory, workflow, and data complexity Guidewire has spent 20 years encoding — and whether a carrier's AI agenda could reduce rather than increase platform reliance.</p>
+  </div>
+  <div class="sec">
+    <div class="st gw">Where AI Genuinely Threatens Guidewire</div>
+    <div class="g2">
+      <div class="card" style="border-top:3px solid var(--red)"><div class="ct" style="color:var(--red)">Risk 1: AI Reduces Switching Costs</div><p>Today's 5–7 year implementations create near-irreversible switching costs. AI coding tools (Claude Code, GitHub Copilot) are dramatically accelerating implementation timelines. If implementations shorten to 12–18 months, carriers can contemplate switching in a way they currently cannot. Guidewire acknowledges this — citing AI coding efficiency as a margin tailwind — but the same tailwind also reduces lock-in durability over time.</p></div>
+      <div class="card" style="border-top:3px solid var(--red)"><div class="ct" style="color:var(--red)">Risk 2: AI-Native Core System Challengers</div><p>No AI-native core system competitor exists today. But on a 3–5 year horizon: a greenfield insurer (new charter, digital-first) will not build on Guidewire. If the market shifts toward smaller, more agile carriers as climate risk fragments the market, Guidewire's installed base at large incumbents may represent a gradually shrinking segment of new market activity.</p></div>
+      <div class="card" style="border-top:3px solid var(--amber)"><div class="ct" style="color:var(--amber)">Risk 3: Foundation Models Commoditize Insurance Logic</div><p>Guidewire's moat partly comes from encoding complex underwriting and claims decision logic. If general-purpose AI (GPT-5, Claude 4) can replicate actuarial logic without pre-coded rules, carriers may prefer a lightweight API layer. This is the "thin client" risk — AI reduces the need for complex middleware between carriers and their data.</p></div>
+      <div class="card" style="border-top:3px solid var(--amber)"><div class="ct" style="color:var(--amber)">Risk 4: Hyperscaler Encroachment</div><p>AWS, Azure, and Google are developing vertical AI solutions for financial services. If a hyperscaler packages AI-native insurance workflow tools as part of a cloud consumption bundle, it could disintermediate Guidewire at the platform layer. This risk is not imminent but is strategically relevant over a 5–7 year horizon.</p></div>
+    </div>
+    <div class="st gw">Where AI Genuinely Favors Guidewire</div>
+    <div class="g2">
+      <div class="card" style="border-top:3px solid var(--green)"><div class="ct" style="color:var(--green)">Opportunity 1: Guidewire as the AI Data Foundation</div><p>Every AI agent in the insurance workflow needs clean, structured, compliant data. Guidewire is the system of record for that data at ~25% of global P&amp;C carriers. This positions Guidewire not as a target of AI disruption but as the database layer that AI applications plug into — more valuable, not less, in an AI-first world.</p></div>
+      <div class="card" style="border-top:3px solid var(--green)"><div class="ct" style="color:var(--green)">Opportunity 2: Accelerated Product Innovation</div><p>Guidewire is using AI coding tools internally to dramatically reduce development timelines. ProNavigator and PricingCenter are early evidence. If the company can ship 3–4x more products per year, it will expand its TAM capture rate faster than underlying market growth — a compounding R&amp;D efficiency advantage.</p></div>
+      <div class="card" style="border-top:3px solid var(--green)"><div class="ct" style="color:var(--green)">Opportunity 3: AI Accelerates Migration Urgency</div><p>Carriers that want AI for pricing agility, cat modeling, or claims automation must first have clean, real-time data in a modern system. Migrating to Guidewire Cloud IS the data readiness project. AI is an accelerant to core system modernization — not a bypass around it. This dynamic is driving larger and longer initial contracts.</p></div>
+      <div class="card" style="border-top:3px solid var(--green)"><div class="ct" style="color:var(--green)">Opportunity 4: Agentic Monetization Layer</div><p>In an agentic AI world, claims adjusters and underwriters will use AI agents that need structured insurance data to act on. Management is building agentic monetization on top of the existing platform — charging for AI actions performed against Guidewire data in real time. This could meaningfully expand ARPU per carrier beyond current ARR levels.</p></div>
+    </div>
+  </div>
+  <div class="vbox neu">
+    <div class="vtit">AI Net Assessment — Guidewire</div>
+    <p>The AI risk to Guidewire is real but commonly misframed. The primary risk is not that AI replaces the core system — it is that AI reduces implementation complexity and softens switching costs over a 5–7 year horizon. The near-term picture (3–5 years) is net positive: AI accelerates migration urgency, expands the product TAM, and allows faster product shipping. The structural question to revisit in 2028–2030 is whether AI-native insurtech challengers gain traction with next-generation carrier customers. Guidewire has time and resources to respond — but this is not a risk to dismiss.</p>
+  </div>
+</div></div>
+
+<div class="sp" id="gwre-fin"><div class="ca">
+  <div class="sec">
+    <div class="st gw">3Q FY2026 Results (June 5, 2026)</div>
+    <div class="g4">
+      <div class="fb"><span class="fv">$1,147M</span><span class="fl">ARR</span><span class="fc pos">+20% YoY</span></div>
+      <div class="fb"><span class="fv">$372.5M</span><span class="fl">Total Revenue</span><span class="fc pos">+27% YoY · +$17M beat</span></div>
+      <div class="fb"><span class="fv">$232M</span><span class="fl">Subscription Revenue</span><span class="fc pos">+39% YoY</span></div>
+      <div class="fb"><span class="fv">21%</span><span class="fl">Non-GAAP Op Margin</span><span class="fc pos">Expanding</span></div>
+    </div>
+    <div class="st gw">Full Year Estimates</div>
+    <table class="dt">
+      <tr><th>Metric</th><th>FY2025A</th><th>FY2026E</th><th>FY2027E</th></tr>
+      <tr><td>Total Revenue ($M)</td><td class="num">$1,202</td><td class="num">$1,465</td><td class="num">$1,671</td></tr>
+      <tr><td>YoY Revenue Growth</td><td class="num">22.6%</td><td class="num pos">21.8%</td><td class="num pos">14.1%</td></tr>
+      <tr><td>Non-GAAP Op Margin</td><td class="num">17.4%</td><td class="num pos">21.8%</td><td class="num pos">23.1%</td></tr>
+      <tr><td>Non-GAAP EPS</td><td class="num">$2.67</td><td class="num">$3.42</td><td class="num">$3.27</td></tr>
+      <tr><td>EV/Revenue</td><td class="num">—</td><td class="num">8.8x</td><td class="num">7.8x</td></tr>
+      <tr><td>FCF Margin (target)</td><td class="num">~23%</td><td class="num pos">~26%</td><td class="num pos">Expanding</td></tr>
+    </table>
+    <div class="pq">"Shares traded as high as $273 in late 2024 and pulled back to the $116–151 range in 2026 — a 50%+ de-rating that provides a more favorable entry point relative to unchanged fundamental momentum."</div>
+  </div>
+  <div class="sec">
+    <div class="st gw">Key Leading Indicators to Monitor</div>
+    <ul class="bl gwb">
+      <li><strong>Fully Ramped-Up ARR vs. Reported ARR:</strong> Management notes fully ramped ARR consistently runs ahead of reported ARR — the best forward indicator of revenue durability.</li>
+      <li><strong>Cloud Deal Count &amp; Contract Length:</strong> 11 deals in 3Q26; increasing 7+ year contracts signal deepening strategic platform adoption.</li>
+      <li><strong>Subscription Gross Margin:</strong> Target 74%+ — sustained achievement signals cloud economics are maturing.</li>
+      <li><strong>New Product ARR:</strong> ProNavigator and PricingCenter are early-stage; watch for transition from pilot wins to meaningful ARR by FY2027.</li>
+      <li><strong>4Q FY2026 Close Rate:</strong> Management attributed 3Q ARR shortfall to deal timing. 4Q is seasonally heaviest. A strong close validates the thesis; a weak close is a yellow flag.</li>
+    </ul>
+  </div>
+</div></div>
+
+<div class="sp" id="gwre-risk"><div class="ca">
+  <div class="sec">
+    <div class="st gw">Key Investment Risks</div>
+    <div class="g2">
+      <div class="card" style="border-top:3px solid var(--red)"><div class="ct" style="color:var(--red)">Deal Lumpiness &amp; Execution Risk</div><p>Core system deals are large ($10–50M+ TCV), infrequent, and multi-year commitments. 3Q26 illustrated this — deals slipped from Q3 to Q4, triggering a 14% after-hours sell-off despite strong underlying fundamentals. Any material miss in the seasonally critical 4Q window could significantly impact the stock.</p></div>
+      <div class="card" style="border-top:3px solid var(--red)"><div class="ct" style="color:var(--red)">Cloud Migration Pace</div><p>~50% of Guidewire's installed base remains on legacy on-premise deployments. The bull case depends on continued migration to cloud over 5+ years. Macro pressures, implementation complexity, or carrier inertia could slow this and disappoint ARR growth expectations.</p></div>
+      <div class="card" style="border-top:3px solid var(--amber)"><div class="ct" style="color:var(--amber)">Valuation Premium Compression</div><p>At ~24x forward FCF, GWRE carries a premium to vertical software peers. If market tolerance for premium multiples compresses, GWRE could see multiple compression even if fundamentals remain intact. The stock's beta to software sentiment is real.</p></div>
+      <div class="card" style="border-top:3px solid var(--amber)"><div class="ct" style="color:var(--amber)">P&amp;C Insurance Cyclicality</div><p>Severe underwriting loss years (mega-cat events, reserve development) can cause carriers to freeze technology spending. Climate change is creating more frequent severe events — paradoxically a long-term tailwind (need for better risk systems) but a potential short-term headwind in bad underwriting years.</p></div>
+    </div>
+  </div>
+</div></div>
+
+<div class="sp" id="gwre-verd"><div class="ca">
+  <div class="sec">
+    <div class="st gw">Bull Case</div>
+    <div class="chips"><span class="chip bull">Cloud Migration Decade</span><span class="chip bull">Data Moat Compounding</span><span class="chip bull">AI Tailwind</span><span class="chip bull">50% De-Rating Entry Point</span></div>
+    <div class="vbox bul"><div class="vtit">The Bull Argument</div>
+    <p>Guidewire is in the early innings of a decade-long cloud migration of the global P&amp;C insurance industry — one of the most regulated and operationally complex industries on earth. Each new cloud customer adds data; each data point improves AI capabilities; each AI capability makes the platform more valuable to the next carrier. The current 15bps take-rate on industry premium has a clear path to 100bps+ as ProNavigator, PricingCenter, and UnderwritingCenter create new monetization surfaces. At ~24x forward FCF after a 50%+ de-rating from peak, the stock prices in a more pessimistic outcome than the data supports. Management's commentary that fully ramped-up ARR runs ahead of reported ARR provides significant forward revenue visibility. The 3–5 year compounder case: 20%+ revenue growth + 400–500bps annual margin expansion + modest multiple re-rating = compelling absolute return potential.</p></div>
+  </div>
+  <div class="sec">
+    <div class="st gw">Bear Case</div>
+    <div class="chips"><span class="chip bear">Premium Multiple</span><span class="chip bear">Deal Lumpiness</span><span class="chip bear">Slow Migration Risk</span><span class="chip bear">AI Reduces Switching Costs</span></div>
+    <div class="vbox bar"><div class="vtit">The Bear Argument</div>
+    <p>Guidewire is a good business at a rich price in a challenging macro environment for growth software. At ~8.8x EV/Revenue and ~24x FCF, any deceleration in cloud migration — carrier budget constraints, cat-loss years, or implementation delays — will trigger significant multiple compression. The nuanced AI bear case is underappreciated: if AI-assisted development reduces implementation timelines from 5-year projects to 18-month projects, the switching costs that make Guidewire's moat so durable begin structurally eroding. A customer who can switch in 18 months rather than 7 years is categorically less locked in. Finally, professional services revenue (low-margin, volatile) creates quarter-to-quarter noise that frustrates investors — as 3Q26's 14% sell-off on largely on-target results demonstrated.</p></div>
+  </div>
+  <div class="sec">
+    <div class="st gw">Key Questions for the Investment Committee</div>
+    <ul class="bl gwb">
+      <li>Is the 4Q FY2026 close strong? (July earnings — most critical quarter of the year by a wide margin.)</li>
+      <li>Are ProNavigator and PricingCenter showing real ARR traction, or still pilot deals without revenue materiality?</li>
+      <li>What is management saying about AI reducing implementation timelines — and what is the switching cost implication?</li>
+      <li>At what multiple is the stock fairly priced? Our view: 7–10x EV/Revenue or 25–35x FCF, depending on whether 20%+ ARR growth sustains through FY2027.</li>
+    </ul>
+  </div>
+</div></div>
+
+<div class="sp" id="gwre-ind"><div class="ca">
+  <div class="sec">
+    <div class="st gw">Why P&amp;C Insurance Core Systems Exist</div>
+    <p class="prose">P&amp;C insurance is structurally one of the most data-intensive, workflow-complex industries in the world. An insurer must: price risk across millions of policy variables; issue legally binding contracts compliant with 50+ state regulatory frameworks; manage claims involving multiple parties, legal obligations, vendor networks, and reserve requirements; and report financials using statutory accounting that differs from GAAP. For decades, carriers managed all of this on mainframe systems built in the 1970s–1990s. These systems work — until they don't. They cannot handle real-time data, modern analytics, or AI. Core system modernization is a once-in-a-generation technology replacement cycle, and it is happening now.</p>
+  </div>
+  <div class="sec">
+    <div class="st gw">Mental Models for Insurance Core System Investing</div>
+    <ul class="bl gwb">
+      <li><strong>Think ERP, not SaaS:</strong> Guidewire is closer to SAP or Oracle ERP than Salesforce CRM. Implementation is deep, multi-year, and operationally transformative. The relationship is generational, not transactional.</li>
+      <li><strong>DWP as the value metric:</strong> Direct Written Premium (DWP) is how carriers are measured. Guidewire's take-rate on DWP is the right way to track monetization over time.</li>
+      <li><strong>Cloud mix as the revenue quality signal:</strong> Every dollar of on-prem revenue that converts to cloud subscription is higher-quality, higher-margin, more predictable. Track this ratio quarterly.</li>
+      <li><strong>Counter-cyclical tech spend:</strong> After a bad cat year, carriers invest MORE in pricing technology and risk management — creating a natural fundamental hedge in the investment thesis.</li>
+      <li><strong>SI ecosystem as the hidden competitive advantage:</strong> Guidewire's real sales force is 10,000+ trained consultants at Accenture, Deloitte, Capgemini. Any degradation in SI partner willingness to bring Guidewire to new opportunities is an early warning signal.</li>
+    </ul>
+  </div>
+</div></div>
+
+<div class="sp" id="gwre-op"><div class="ca">
+  <div class="sec">
+    <div class="st gw">The Operator's View</div>
+    <div class="g2">
+      <div class="card"><div class="ct">What the CEO Obsesses Over</div><p>Mike Rosenbaum is focused on two things: (1) ensuring every existing on-prem customer has a credible path to cloud — the core revenue and margin engine; and (2) maintaining Guidewire's right to own the AI layer in insurance by being the data foundation. Every strategic conversation returns to: "Who owns the insurance data?" The answer must be Guidewire.</p></div>
+      <div class="card"><div class="ct">What Keeps Sales Leaders Up at Night</div><p>Deal slippage. Large core system deals are highly visible internally. When a carrier's board delays a migration decision — budget concerns, leadership change, cat loss year — the entire quarter's ARR can shift. Sales leaders live by "fully ramped-up ARR" and lose sleep when pipeline-to-signed contract conversion rates weaken.</p></div>
+      <div class="card"><div class="ct">The Carrier Buying Process</div><p>Evaluating core system modernization takes 18–36 months from initial evaluation to contract signature. The decision involves CIO, Chief Actuary, CEO, and often the board. Multiple vendor demos, reference calls, proof-of-concept, and regulatory review. Once decided, it cannot easily be undone — hence Guidewire wins by being the safest, most proven choice, not the most innovative or cheapest.</p></div>
+      <div class="card"><div class="ct">What Outsiders Consistently Miss</div><p><strong>Regulatory complexity IS the moat:</strong> Maintaining compliance across 50+ U.S. states + 30+ international markets in real time is worth billions in accumulated R&amp;D that no entrant can replicate in under 5 years. <strong>Implementation failures are industry events:</strong> When a core system implementation fails, it generates industry-wide press and makes every carrier CIO more conservative — reinforcing Guidewire's incumbent advantage.</p></div>
+    </div>
+  </div>
+</div></div>
+</div><!-- end panel-gwre -->
+
+<!-- ===== AXON ===== -->
+<div class="panel" id="panel-axon">
+<div class="cohead ax">
+  <div><div class="coname">Axon Enterprise (AXON)</div><div class="cosub">Public Safety Technology Platform · Law Enforcement &amp; Enterprise · NASDAQ · FY Ends December</div></div>
+  <div class="stats">
+    <div class="sbox"><span class="sv">$513</span><span class="sl">Price</span></div>
+    <div class="sbox"><span class="sv">~$42B</span><span class="sl">Mkt Cap</span></div>
+    <div class="sbox"><span class="sv">35%</span><span class="sl">ARR Growth</span></div>
+    <div class="sbox"><span class="sv">25.5%</span><span class="sl">EBITDA Margin</span></div>
+    <div class="sbox"><span class="sv">11.5x</span><span class="sl">EV/Rev '26E</span></div>
+  </div>
+</div>
+<div class="stabs axa">
+  <div class="stab active" onclick="showS('axon','ov',this)">Overview</div>
+  <div class="stab" onclick="showS('axon','prod',this)">Products &amp; Revenue</div>
+  <div class="stab" onclick="showS('axon','comp',this)">Competition</div>
+  <div class="stab" onclick="showS('axon','ai',this)">AI Risk &amp; Opportunity</div>
+  <div class="stab" onclick="showS('axon','fin',this)">Financials</div>
+  <div class="stab" onclick="showS('axon','risk',this)">Risks</div>
+  <div class="stab" onclick="showS('axon','verd',this)">Investor Verdict</div>
+  <div class="stab" onclick="showS('axon','ind',this)">Industry Primer</div>
+  <div class="stab" onclick="showS('axon','op',this)">Operator Lens</div>
+</div>
+
+<div class="sp active" id="axon-ov"><div class="ca">
+  <div class="sec">
+    <div class="st ax">Business Model</div>
+    <div class="g2">
+      <div class="card"><div class="ct">What Axon Actually Does</div><p>Axon is the <strong>technology operating system for public safety</strong>. It started with TASERs (less-lethal weapons) and expanded into body cameras, then cloud evidence management (Evidence.com), then records management (CAD/RMS), and now AI-powered real-time operations and 911 integration. Every interaction between law enforcement and the public is increasingly captured, managed, and analyzed through Axon's integrated hardware + software + AI platform.</p></div>
+      <div class="card"><div class="ct">The Core Flywheel: Hardware Creates Software Revenue</div><p>Axon's model is the inverse of most SaaS companies. Hardware (TASER, body cameras, in-car cameras) generates video evidence and incident data that can only be legally managed in Axon's cloud (Evidence.com, with CJIS compliance). Each new body camera deployed generates $100–200+/year in recurring cloud software revenue indefinitely. Software &amp; Services gross margins at 72–74% are dramatically superior to hardware at ~48% — the economics compound as the installed base grows.</p></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ct">Value Chain Positioning</div><ul class="bl axb">
+        <li><strong>Data Capture Layer:</strong> Axon owns the sensors — body cameras, in-car cameras, TASERs, drones — that generate public safety data at the point of incident.</li>
+        <li><strong>Data Management Layer:</strong> Evidence.com manages chain-of-custody, storage, and legally defensible sharing of all captured data. Required for court admissibility.</li>
+        <li><strong>Workflow &amp; AI Layer:</strong> Records management, AI report writing, real-time intelligence (Fusus), and 911 integration. Axon is expanding from evidence storage to full workflow orchestration.</li>
+      </ul></div>
+      <div class="card"><div class="ct">Company History</div><ul class="bl axb">
+        <li><strong>Founded 1993 (as TASER International):</strong> Less-lethal weapons for law enforcement.</li>
+        <li><strong>Renamed Axon 2017:</strong> Reflected strategic shift to comprehensive public safety technology platform.</li>
+        <li><strong>Evidence.com:</strong> Cloud evidence management drove the SaaS transformation and recurring revenue model.</li>
+        <li><strong>2020s AI Expansion:</strong> Draft One, Axon Assistant, Fusus, Axon Records, counter-drone (Dedrone), Axon 911. Each product expands TAM and deepens platform lock-in.</li>
+      </ul></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="st ax">Customer Base &amp; End Markets</div>
+    <div class="g3">
+      <div class="card"><div class="ct">Core: U.S. Law Enforcement</div><p>~18,000 U.S. law enforcement agencies. Deep penetration at large municipal departments. Net revenue retention of 125% — existing customers consistently spend more each year as they add products and expand deployments.</p></div>
+      <div class="card"><div class="ct">Growth: International</div><p>International revenue grew 100% YoY in 1Q26. National police forces (UK, Australia, Canada, emerging markets) represent a TAM far larger than the U.S. market. Still very early-stage — single-digit percent of potential users internationally. Multi-year growth catalyst.</p></div>
+      <div class="card"><div class="ct">Emerging: Enterprise &amp; Federal</div><p>Enterprise (retail loss prevention, corporate security, campus safety) and U.S. federal agencies are newer verticals. Dedrone (counter-drone) has applications across law enforcement, federal, enterprise, and major-event security. Large telco Fusus win in 1Q26 signals early enterprise traction.</p></div>
+    </div>
+  </div>
+</div></div>
+
+<div class="sp" id="axon-prod"><div class="ca">
+  <div class="sec">
+    <div class="st ax">Connected Devices — ~$2.0B Revenue FY2026E</div>
+    <div class="g3">
+      <div class="card"><div class="ct">TASER Devices</div><p>Less-lethal conducted energy weapons. TASER 10 is the current flagship. Still growing despite high U.S. penetration — international expansion and product upgrades drive upside. The TASER is the relationship-starter that opens the door to the full Axon platform.</p></div>
+      <div class="card"><div class="ct">Axon Body Camera</div><p>Axon Body 4 integrates AI assistant for voice-enabled note-taking and report prompting. Deployed by the majority of large U.S. agencies. Hardware + mandatory Evidence.com subscription creates the annuity stream that drives recurring software revenue growth.</p></div>
+      <div class="card"><div class="ct">Axon Fleet (In-Car) &amp; Dock</div><p>In-car camera systems + cloud-connected docking stations that auto-upload footage to Evidence.com. Every patrol car becomes a node in the Axon data network. Generates significant recurring cloud revenue per deployed vehicle.</p></div>
+    </div>
+    <div class="st ax">Software &amp; Services — ~$1.6B Revenue FY2026E (High-Margin Engine)</div>
+    <div class="g2">
+      <div class="card"><div class="ct">Evidence.com — The Core Moat</div><p>Cloud evidence management platform. Stores, manages, and enables legally defensible sharing of video evidence. Legally required for court admissibility. An agency cannot switch without rebuilding its entire chain-of-custody infrastructure. ARR: $1.49B growing 35%+ YoY. 125% NRR.</p></div>
+      <div class="card"><div class="ct">AI Era Plan — Draft One &amp; Axon Assistant</div><p>Draft One uses AI to automatically generate police incident reports from body camera audio — saving officers 1–3 hours per shift. $750M+ in AI Era Plan bookings last year; 140% AI bookings growth; AI product revenue +700% YoY. This is the most important new monetization vector and the clearest evidence that Axon is an AI beneficiary.</p></div>
+      <div class="card"><div class="ct">Fusus (Real-Time Intelligence)</div><p>Integrates IoT camera feeds, gunshot detection sensors, and other data sources into a single operational picture for cities and jurisdictions. Enables real-time situational awareness for dispatchers and officers. Large telco win in 1Q26 signals enterprise expansion potential.</p></div>
+      <div class="card"><div class="ct">Axon Records, CAD &amp; Axon 911</div><p>Records management and computer-aided dispatch. Axon 911 (built on Carbyne + Prepared acquisitions) is cloud-native emergency call handling with AI-powered call intelligence and full integration with Axon Evidence — connecting the "first moment of incident" (911 call) to the entire Axon evidence ecosystem.</p></div>
+    </div>
+    <div class="st ax">Newer Growth Vectors</div>
+    <div class="g3">
+      <div class="card"><div class="ct">Dedrone (Counter-Drone)</div><p>Counter-drone product revenue grew 300%+ most recently. Applicable across law enforcement, federal/military, enterprise, and major event security. First-mover advantage in a genuinely new market with no clear incumbent.</p></div>
+      <div class="card"><div class="ct">Axon Vision</div><p>AI that analyzes live camera feeds for predefined events (altercations, unauthorized access, medical emergencies). Converts passive surveillance into active, actionable intelligence. Embedded in Fusus — broadens Axon's fixed-camera TAM significantly.</p></div>
+      <div class="card"><div class="ct">VR Training</div><p>VR-based scenario training for law enforcement. Early stage but strategically interesting — training data stays in the Axon ecosystem, creating an additional data flywheel around officer decision-making patterns.</p></div>
+    </div>
+  </div>
+</div></div>
+
+<div class="sp" id="axon-comp"><div class="ca">
+  <div class="sec">
+    <div class="st ax">Competitive Landscape</div>
+    <div class="g2">
+      <div class="card"><div class="ct">Motorola Solutions — Primary Competitive Threat</div><p>Incumbent in radio communications and CAD/RMS for law enforcement. Has deep 30-year agency relationships and is actively investing in body cameras, evidence management, and AI. Motorola's PremierOne CAD/RMS is entrenched at many agencies. The most legitimate long-term competitive threat — particularly in CAD/RMS where Axon is the challenger, not the incumbent.</p></div>
+      <div class="card"><div class="ct">Tyler Technologies (TYL)</div><p>Public sector software with a CAD/RMS product (New World). Competes primarily in mid-market and smaller agencies. Tyler's broad product suite (courts, utilities, government ERP) is not as deep in law enforcement workflows as Axon. The CAD/RMS market remains fragmented.</p></div>
+      <div class="card"><div class="ct">Hardware Vendors (Getac, Panasonic)</div><p>Rugged computing and in-car technology vendors. Compete at the hardware layer only. Not materially competitive with Axon's software/AI stack. More component suppliers than platform competitors.</p></div>
+      <div class="card"><div class="ct">Potential AI-Native Entrants</div><p>The highest-stakes long-term risk: a well-funded AI company building AI-native public safety workflow tools. Not current — but a bear case scenario worth monitoring. Axon's advantage: law enforcement AI requires physical sensor integration, CJIS compliance, and law enforcement-specific training data — meaningful barriers even for frontier AI companies.</p></div>
+    </div>
+    <div class="st ax">Why Axon Wins (and How It Loses)</div>
+    <ul class="bl axb">
+      <li><strong>Wins because:</strong> Hardware creates physical presence at data generation point — no software-only competitor can replicate this. Evidence.com chain-of-custody requirements create near-irreversible legal switching costs. $750M+ in AI Era Plan bookings demonstrates agencies will pay for AI through Axon specifically.</li>
+      <li><strong>Loses because:</strong> Price pressure in body cameras as the market matures. CAD/RMS is genuinely hard — Motorola has 30+ year relationships that product quality alone cannot displace. Large national police force deals require years of relationship building and political navigation that take longer than pure enterprise sales.</li>
+    </ul>
+  </div>
+</div></div>
+
+<div class="sp" id="axon-ai"><div class="ca">
+  <div class="aibox">
+    <div class="aib-t">⚡ AI Disruptability Assessment — Axon</div>
+    <p>Axon is perhaps the most interesting AI case study in the software universe — because unlike most software companies that fear AI disruption, Axon has concrete, real-time revenue evidence that it is an AI beneficiary: $750M+ in AI Era Plan bookings; 700% AI product revenue growth in the most recent year. The more interesting question for a risk-focused committee: what are the vectors where AI could still hurt Axon even as near-term data looks excellent?</p>
+  </div>
+  <div class="sec">
+    <div class="st ax">Where AI Genuinely Threatens Axon</div>
+    <div class="g2">
+      <div class="card" style="border-top:3px solid var(--red)"><div class="ct" style="color:var(--red)">Risk 1: AI Report Writing Commoditizes</div><p>Draft One's primary value proposition — AI-powered report writing — is not proprietary technology. OpenAI, Google, and dozens of startups can build report-drafting tools. If Microsoft 365 Copilot offers report-writing capability to law enforcement agencies as part of an existing enterprise agreement, the incremental willingness to pay for Axon's AI Era Plan may compress. Axon's advantage is integration (Draft One pulls from body camera audio automatically) — but this advantage could narrow over time.</p></div>
+      <div class="card" style="border-top:3px solid var(--red)"><div class="ct" style="color:var(--red)">Risk 2: Hyperscalers in Evidence Management</div><p>Microsoft, Google, and AWS are offering AI-enhanced video storage and analysis tools. If a hyperscaler packages evidence-grade video storage with AI analysis at lower cost than Evidence.com, smaller and mid-size agencies may be susceptible. Large agencies with deep Axon integrations are unlikely to switch — but the mid-market is more vulnerable to competitive erosion over time.</p></div>
+      <div class="card" style="border-top:3px solid var(--amber)"><div class="ct" style="color:var(--amber)">Risk 3: Camera Hardware Commoditizes</div><p>Axon's moat is partly based on its hardware generating data that lives in Axon's cloud. If AI becomes the primary decision layer and models can work with any camera brand's footage, the importance of being the camera manufacturer diminishes. A 5–10 year risk as cameras become commodity sensors — not imminent but worth monitoring as hardware renewal cycles approach.</p></div>
+      <div class="card" style="border-top:3px solid var(--amber)"><div class="ct" style="color:var(--amber)">Risk 4: Privacy Regulation Constrains AI Features</div><p>Expanding AI use of law enforcement data (predictive policing, facial recognition, behavioral analysis) is politically sensitive. If AI-powered public safety tools become a regulatory flashpoint — as facial recognition has in several cities — agencies may limit adoption of AI features, constraining the AI Era Plan's addressable market. This is genuinely underpriced by most investors.</p></div>
+    </div>
+    <div class="st ax">Where AI Genuinely Favors Axon</div>
+    <div class="g2">
+      <div class="card" style="border-top:3px solid var(--green)"><div class="ct" style="color:var(--green)">Opportunity 1: CJIS-Compliant Data is the AI Moat</div><p>Law enforcement AI tools require training data that is legally admissible, chain-of-custody compliant, jurisdiction-specific, and privacy-protected under CJIS standards. Axon has the only significant proprietary dataset that meets all these criteria. No AI company can replicate this without years of agency relationships and compliance infrastructure.</p></div>
+      <div class="card" style="border-top:3px solid var(--green)"><div class="ct" style="color:var(--green)">Opportunity 2: Hardware is the AI Distribution Layer</div><p>Every piece of Axon hardware is now a potential AI endpoint. AI Era Plan bookings of $750M+ in one year demonstrate agencies will pay for AI delivered through trusted, integrated hardware they already own. Axon is the distribution layer for AI in public safety — a position no software-only company can replicate in the near term.</p></div>
+      <div class="card" style="border-top:3px solid var(--green)"><div class="ct" style="color:var(--green)">Opportunity 3: AI Creates New Market Categories</div><p>Axon Vision (live video AI), Axon 911 (AI-assisted call handling), and counter-drone AI are new product categories that did not exist 3 years ago. Unlike GWRE where AI expands an existing TAM, at Axon, AI is creating entirely new markets — with Axon positioned as the incumbent by first-mover advantage.</p></div>
+      <div class="card" style="border-top:3px solid var(--green)"><div class="ct" style="color:var(--green)">Opportunity 4: Trust Cannot Be Replicated</div><p>Law enforcement agencies will not adopt AI from an unknown vendor. Axon's 30-year track record — from TASERs to body cameras to evidence management — creates institutional trust that cannot be manufactured. AI products from Axon are trusted by default; AI products from a new entrant require years of procurement cycles that Axon has already completed.</p></div>
+    </div>
+  </div>
+  <div class="vbox bul">
+    <div class="vtit">AI Net Assessment — Axon</div>
+    <p>Axon is the clearest AI beneficiary among the two options presented — by a significant margin. The 700% AI revenue growth and $750M+ AI Era Plan bookings are actual executed numbers, not projections. The hardware flywheel creates a trusted distribution channel for AI that no software-only company can replicate in the near term. Key risks are: commoditization of AI report writing over time, and hyperscalers offering competitive evidence management. Both risks are real but likely 3–5 years out. Near-term AI momentum is unambiguous and accelerating.</p>
+  </div>
+</div></div>
+
+<div class="sp" id="axon-fin"><div class="ca">
+  <div class="sec">
+    <div class="st ax">1Q FY2026 Results (May 7, 2026) — Strongest Q1 Ever</div>
+    <div class="g4">
+      <div class="fb"><span class="fv">$1,493M</span><span class="fl">ARR</span><span class="fc pos">+35% YoY</span></div>
+      <div class="fb"><span class="fv">$807M</span><span class="fl">Revenue</span><span class="fc pos">+34% YoY · +$29M beat</span></div>
+      <div class="fb"><span class="fv">$14.3B</span><span class="fl">Future Contracted Bookings</span><span class="fc pos">+44% YoY</span></div>
+      <div class="fb"><span class="fv">125%</span><span class="fl">Net Revenue Retention</span><span class="fc pos">Steady</span></div>
+    </div>
+    <div class="st ax">Full Year Estimates</div>
+    <table class="dt">
+      <tr><th>Metric</th><th>FY2025A</th><th>FY2026E</th><th>FY2027E</th></tr>
+      <tr><td>Total Revenue ($M)</td><td class="num">$2,780</td><td class="num">$3,641</td><td class="num">$4,648</td></tr>
+      <tr><td>YoY Revenue Growth</td><td class="num">33.5%</td><td class="num pos">31.0%</td><td class="num pos">27.6%</td></tr>
+      <tr><td>S&amp;S Gross Margin</td><td class="num pos">74%</td><td class="num pos">73%</td><td class="num pos">75%</td></tr>
+      <tr><td>Adj. EBITDA Margin</td><td class="num">25.5%</td><td class="num pos">25.5%</td><td class="num pos">26.3%</td></tr>
+      <tr><td>Non-GAAP EPS</td><td class="num">$7.00</td><td class="num">$7.70</td><td class="num">$9.98</td></tr>
+      <tr><td>EV/Revenue</td><td class="num">—</td><td class="num">11.5x</td><td class="num">9.0x</td></tr>
+      <tr><td>FCF Margin</td><td class="num">3.1%</td><td class="num pos">12.3%</td><td class="num pos">15.1%</td></tr>
+    </table>
+    <div class="pq">"1Q26 FCF was negative $54M — not due to business weakness but strategic inventory pre-positioning to hedge component costs. Adj. EBITDA at 25%+ is the cleaner profitability metric. Hardware complexity creates cash flow volatility that pure SaaS investors are unaccustomed to."</div>
+  </div>
+  <div class="sec">
+    <div class="st ax">Key Leading Indicators to Monitor</div>
+    <ul class="bl axb">
+      <li><strong>Future Contracted Bookings:</strong> $14.3B growing 44% YoY. The most important forward revenue indicator — watch for any sequential deceleration in new bookings growth.</li>
+      <li><strong>AI Era Plan Bookings:</strong> $750M+ in the last year. Track whether AI plans are becoming standard in the majority of new deal structures.</li>
+      <li><strong>International Revenue:</strong> 100% YoY growth in 1Q26. Watch for diversification across markets and whether large national police contracts convert from pilot to full deployment.</li>
+      <li><strong>Software &amp; Services Mix:</strong> Every percentage point shift toward software is roughly 5–6pp gross margin improvement at the blended level.</li>
+      <li><strong>Dedrone Revenue:</strong> 300% growth recently. Track when this becomes a meaningful standalone revenue contributor.</li>
+    </ul>
+  </div>
+</div></div>
+
+<div class="sp" id="axon-risk"><div class="ca">
+  <div class="sec">
+    <div class="st ax">Key Investment Risks</div>
+    <div class="g2">
+      <div class="card" style="border-top:3px solid var(--red)"><div class="ct" style="color:var(--red)">Valuation — Priced for Perfection</div><p>At ~66x 2026E non-GAAP EPS and ~11.5x EV/Revenue, Axon requires sustained execution excellence for years. The stock has traded from $886 to $339 in the past 12 months. At $513, any fundamental miss — a federal budget freeze, an AI controversy, a large deal loss — will be punished severely. This is the highest-risk element of the AXON investment.</p></div>
+      <div class="card" style="border-top:3px solid var(--red)"><div class="ct" style="color:var(--red)">Government Budget Dependency</div><p>The vast majority of Axon's revenue comes from government agencies funded by municipal, state, and federal budgets. Budget austerity cycles — particularly relevant in the current U.S. fiscal environment — can delay or cancel technology procurement. DOGE-related federal uncertainty has already impacted some federal agency budgets in 2025–2026.</p></div>
+      <div class="card" style="border-top:3px solid var(--red)"><div class="ct" style="color:var(--red)">Political &amp; Regulatory Risk</div><p>Axon's AI products operate in one of the most politically sensitive verticals in technology. A high-profile AI failure (wrongful arrest aided by AI, privacy breach, algorithmic bias incident) would generate immediate congressional scrutiny and could force agencies to pause AI adoption. This is a tail risk but genuinely underpriced by most investors.</p></div>
+      <div class="card" style="border-top:3px solid var(--amber)"><div class="ct" style="color:var(--amber)">Motorola Competition Intensifying</div><p>Motorola has deep government relationships, substantial R&amp;D resources, and is actively building in body cameras and AI. Axon's 125% NRR reflects strong current positioning, but Motorola is playing a long game. Any Motorola win at a top-50 U.S. agency is a meaningful competitive signal worth monitoring closely.</p></div>
+      <div class="card" style="border-top:3px solid var(--amber)"><div class="ct" style="color:var(--amber)">Innovation Sustenance Risk</div><p>Axon's valuation requires it to continuously identify new product categories (TASERs → cameras → Evidence.com → AI → counter-drone → 911). Each product transition requires both technical innovation and market creation. One missed product cycle could trigger significant growth deceleration.</p></div>
+      <div class="card" style="border-top:3px solid var(--amber)"><div class="ct" style="color:var(--amber)">FCF Volatility</div><p>Negative FCF in 1Q26 ($54M use of cash) despite strong earnings due to inventory positioning. Hardware supply chain complexity creates ongoing cash flow volatility that pure SaaS investors are not accustomed to managing. Watch FCF quality vs. EBITDA on an ongoing basis.</p></div>
+    </div>
+  </div>
+</div></div>
+
+<div class="sp" id="axon-verd"><div class="ca">
+  <div class="sec">
+    <div class="st ax">Bull Case</div>
+    <div class="chips"><span class="chip bull">Proven AI Beneficiary</span><span class="chip bull">Hardware Data Moat</span><span class="chip bull">International Upside</span><span class="chip bull">125% NRR</span><span class="chip bull">Founder-Led</span></div>
+    <div class="vbox bul"><div class="vtit">The Bull Argument</div>
+    <p>Axon is the rare company simultaneously an AI beneficiary (not a victim) with a hardware distribution moat no software-only competitor can replicate. The $750M+ in AI Era Plan bookings and 700% AI revenue growth are real, executed dollars. The platform expansion from TASERs → body cameras → Evidence.com → AI → counter-drone is a proven, repeatable model: Axon identifies a workflow inefficiency in public safety, builds a product, wins agencies, and cross-sells. International expansion (100% YoY) and enterprise expansion suggest the TAM is much larger than U.S. law enforcement implies. At $14.3B in contracted bookings growing 44%, Axon has multi-year revenue visibility that most growth companies cannot claim. Founder alignment, mission-driven culture, and a continuous product innovation track record are genuine competitive advantages. The 3–5 year case: 25–30% revenue growth + margin expansion + AI monetization as re-rating catalyst = compelling absolute returns for a patient investor.</p></div>
+  </div>
+  <div class="sec">
+    <div class="st ax">Bear Case</div>
+    <div class="chips"><span class="chip bear">Premium Valuation</span><span class="chip bear">Gov Budget Risk</span><span class="chip bear">Political Sensitivity</span><span class="chip bear">Motorola Competition</span></div>
+    <div class="vbox bar"><div class="vtit">The Bear Argument</div>
+    <p>Axon's story is compelling but the valuation requires everything to go right. At ~66x non-GAAP earnings and ~11.5x revenue, there is no margin of safety for fundamental stumbles. Government budgets are under pressure, international expansion takes longer and costs more than domestic, and Motorola is not standing still. The political risk of AI in policing is genuinely underpriced — a single high-profile AI failure in law enforcement could trigger a regulatory backlash that constrains the AI Era Plan's addressable market. The FCF profile is messier than EBITDA suggests — inventory builds and hardware complexity create cash flow volatility that pure SaaS investors are unaccustomed to managing.</p></div>
+  </div>
+  <div class="sec">
+    <div class="st ax">Key Questions for the Investment Committee</div>
+    <ul class="bl axb">
+      <li>Is the 44% bookings growth sustainable? At $14.3B in contracted backlog there is strong near-term visibility — watch for any sequential deceleration in new bookings.</li>
+      <li>What is the AI Era Plan attach rate on new contracts? If AI plans are being added to the majority of new contracts, revenue quality and growth durability improve significantly.</li>
+      <li>Is international becoming structural or still lumpy? 100% YoY growth is impressive but large national police contracts are binary — watch for diversification across markets.</li>
+      <li>What is Motorola doing in body cameras and evidence management? Any Motorola win at a top-50 U.S. agency is a meaningful competitive signal worth monitoring closely.</li>
+    </ul>
+  </div>
+</div></div>
+
+<div class="sp" id="axon-ind"><div class="ca">
+  <div class="sec">
+    <div class="st ax">Why Public Safety Technology Exists</div>
+    <p class="prose">Law enforcement is one of the last large industries to undergo genuine technology transformation. Three structural drivers are forcing change: (1) Accountability and transparency mandates following high-profile use-of-force incidents have made body cameras mandatory or strongly encouraged in most major U.S. jurisdictions; (2) The volume and complexity of digital evidence in modern cases overwhelmed legacy evidence management; (3) Officer safety and operational efficiency have become acute priorities as departments face staffing shortages. Each driver independently justifies the technology investment — together they represent a decade-long secular tailwind.</p>
+  </div>
+  <div class="sec">
+    <div class="st ax">Mental Models for Public Safety Technology Investing</div>
+    <ul class="bl axb">
+      <li><strong>Chain of custody is the moat:</strong> Every piece of evidence in a criminal case must have an unbroken, documented custody trail. Evidence.com is the digital chain-of-custody infrastructure. An agency cannot switch without potentially compromising admissibility of existing evidence. This is a legal, not merely operational, switching cost.</li>
+      <li><strong>Government procurement dynamics:</strong> Government technology procurement is fundamentally different from enterprise SaaS. Timelines are 6–24 months. Decisions involve political considerations, annual fixed budgets, and multi-stakeholder approval. Once a vendor is embedded, switching requires a political decision — not just a technical one.</li>
+      <li><strong>Hardware cycles vs. software renewal:</strong> Law enforcement technology has two buying cycles: hardware replacement (every 3–5 years) and software renewal (annually or multi-year). AI Era Plan creates a third cycle: AI feature upgrades that can be sold mid-contract.</li>
+      <li><strong>Federal funding amplifies demand:</strong> DOJ COPS grants and other federal programs subsidize technology purchases for local agencies. These funding cycles create demand waves not tied to local budget health — a favorable dynamic even during municipal budget pressure.</li>
+    </ul>
+  </div>
+</div></div>
+
+<div class="sp" id="axon-op"><div class="ca">
+  <div class="sec">
+    <div class="st ax">The Operator's View</div>
+    <div class="g2">
+      <div class="card"><div class="ct">What the CEO Obsesses Over</div><p>Rick Smith (founder-CEO) is consumed by mission and innovation velocity. Mission: every product decision is framed against "can this save lives or reduce use of lethal force?" This shapes product prioritization and creates a culture where engineers believe in the work — a genuine competitive advantage in talent retention. Innovation velocity: Smith demands Axon be first to market in every category. The moment a category matures and competition arrives, Axon must already be building the next one.</p></div>
+      <div class="card"><div class="ct">What Keeps Sales Leaders Up at Night</div><p>The CAD/RMS market. Axon Records is a genuine product but competing against Motorola's entrenched CAD/RMS relationships is the hardest sales motion in the company. Every CAD/RMS win requires displacing a 10–20 year relationship. Sales cycles are 18–36 months. Win rates are lower than in body cameras or Evidence.com — a persistent frustration in an otherwise high-win-rate culture.</p></div>
+      <div class="card"><div class="ct">The Agency Buying Process</div><p>A police department evaluating body cameras goes through: needs assessment → RFP → vendor demos → references from peer agencies → union consultation → legal review → City Council/County Board approval → procurement. Axon wins because it has the deepest peer agency reference network — no department wants to be first to adopt an untested camera brand. In government procurement, being the safe choice is the winning choice.</p></div>
+      <div class="card"><div class="ct">What Outsiders Consistently Miss</div><p><strong>The TASER is a loss leader:</strong> Axon's margin profile comes from software, not TASERs. The TASER is the relationship-opener into a recurring software relationship worth 10–20x the hardware sale over a contract lifetime. <strong>Unions matter enormously:</strong> Police unions have significant say in technology adoption. Body cameras perceived as surveillance tools for officers face union resistance. Axon has navigated this carefully — its messaging emphasizes officer protection as much as public accountability.</p></div>
+    </div>
+  </div>
+</div></div>
+</div><!-- end panel-axon -->
+
+<!-- ===== VS ===== -->
+<div class="panel" id="panel-vs">
+<div class="vshdr">
+  <div class="vstit">GWRE vs. AXON — Side-by-Side Analysis</div>
+  <div class="vssub">3–5 Year Investment Horizon · US Large Cap Growth Strategy · Prepared July 2026</div>
+</div>
+<div style="padding:30px 36px">
+  <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:30px">
+    <table class="vst">
+      <tr>
+        <th class="gc" style="width:43%">GWRE — Guidewire Software</th>
+        <th class="mc" style="width:14%">Dimension</th>
+        <th class="ac" style="width:43%">AXON — Axon Enterprise</th>
+      </tr>
+      <tr>
+        <td class="gw">~20–22% ARR growth; decelerating as base grows. Cloud transition accelerant embedded. Clean subscription model, no hardware drag.</td>
+        <td class="mid">Revenue Growth</td>
+        <td class="ax win">30–35% ARR growth; re-accelerating due to AI Era Plan and international. Faster, and the trajectory is favorable.</td>
+      </tr>
+      <tr>
+        <td class="gw win">67% blended, expanding toward 70%+ as cloud mix grows. Pure software economics with no hardware margin ceiling.</td>
+        <td class="mid">Gross Margin</td>
+        <td class="ax">~61% blended (hardware drags). S&amp;S at 73–74% is excellent but hardware constrains the blended margin ceiling structurally.</td>
+      </tr>
+      <tr>
+        <td class="gw win">26% FCF margin target; clean and predictable. Subscription-only cash flows with no hardware inventory risk.</td>
+        <td class="mid">FCF Quality</td>
+        <td class="ax">12–15% FCF margin with hardware volatility. Adj. EBITDA at 25.5% is cleaner but FCF has proven lumpy (1Q26: -$54M inventory build). Hardware limits cash quality vs. pure SaaS.</td>
+      </tr>
+      <tr>
+        <td class="gw win">8.8x EV/Revenue (2026E); ~24x FCF. Premium to vertical software but less extreme. De-rated 50% from peak — more room for fundamental re-rating from current levels.</td>
+        <td class="mid">Valuation</td>
+        <td class="ax">11.5x EV/Revenue (2026E); ~66x non-GAAP EPS. Premium-on-premium. Requires sustained 30%+ growth for 5+ years. Higher risk at this entry point.</td>
+      </tr>
+      <tr>
+        <td class="gw">Moderate medium-term risk. AI reduces switching costs via faster implementations (3–5 year risk). Near-term AI is a net tailwind (accelerates migration urgency).</td>
+        <td class="mid">AI Disruption Risk</td>
+        <td class="ax win">Low near-term risk. Hardware moat + CJIS-compliant data + 30-year law enforcement trust = hard to replicate. Actively an AI beneficiary: $750M+ AI bookings; 700% AI revenue growth.</td>
+      </tr>
+      <tr>
+        <td class="gw">Meaningful but early-stage. Agentic monetization, data analytics, faster product shipping. ProNavigator and PricingCenter are promising but not yet material ARR contributors.</td>
+        <td class="mid">AI Opportunity</td>
+        <td class="ax win">Proven and accelerating. AI Era Plan is real, scaling revenue. Axon Vision, Axon 911, counter-drone AI are creating new market categories. AI is a current revenue driver, not future optionality.</td>
+      </tr>
+      <tr>
+        <td class="gw win">Extremely high. 5–7 year implementation effort to replace. Regulatory compliance encoding is nearly irreversible. Best-in-class switching cost moat in all of software.</td>
+        <td class="mid">Switching Costs</td>
+        <td class="ax">Very high (legal chain-of-custody compliance, sunk hardware, union relationships) but softened by hardware commoditization risk and Motorola competition at the CAD/RMS layer.</td>
+      </tr>
+      <tr>
+        <td class="gw">~25% of global P&amp;C premium on platform; ~50% cloud. Multiple dimensions of expansion: cloud conversion, cross-sell, international, life insurance, AI monetization.</td>
+        <td class="mid">TAM &amp; Penetration</td>
+        <td class="ax win">U.S. law enforcement deeply penetrated at large agencies; international (&lt;10% penetrated) and enterprise are just beginning. Counter-drone and Axon 911 create entirely new TAMs. Penetration upside is larger.</td>
+      </tr>
+      <tr>
+        <td class="gw">Moderate. Large deal lumpiness creates Q/Q noise. Fully ramped ARR provides forward visibility but not granular guidance.</td>
+        <td class="mid">Revenue Predictability</td>
+        <td class="ax win">High. $14.3B contracted bookings (+44%) provides multi-year revenue visibility. 125% NRR means existing customers grow revenue organically. Government contracts are multi-year commitments.</td>
+      </tr>
+      <tr>
+        <td class="gw win">Cleaner pure-play SaaS economics. No hardware. Gross margin improves each year as cloud mix grows. Easier to model and value with precision.</td>
+        <td class="mid">Business Model Purity</td>
+        <td class="ax">Hardware + software hybrid. Creates margin ceiling, inventory risk, and supply chain complexity. Software economics are excellent; hardware adequate. Blended model is messier to underwrite.</td>
+      </tr>
+      <tr>
+        <td class="gw win">Regulation is a moat, not a risk. Insurance regulation drives demand for compliance-encoded platform. More regulation = more need for Guidewire. Counter-cyclical tech spend dynamic.</td>
+        <td class="mid">Regulatory Risk</td>
+        <td class="ax">Mixed. Government procurement moat is real. But AI-in-policing regulation could limit the AI Era Plan's addressable market. Political sensitivity is real and underappreciated by most investors.</td>
+      </tr>
+      <tr>
+        <td class="gw">CEO Mike Rosenbaum (2019). Strong strategic vision on cloud + AI. Consistent execution. Not a founder but well-regarded.</td>
+        <td class="mid">Management</td>
+        <td class="ax win">Founder-led. Rick Smith built Axon from a stun gun company to a $42B public safety technology platform. Founder alignment, long-term orientation, and mission-driven culture are genuine competitive advantages.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div style="background:#f4f7fb;border-radius:10px;padding:26px;margin-bottom:22px">
+    <div style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:18px">The Core Decision: Which Risk Profile Does the Committee Prefer?</div>
+    <div class="g2">
+      <div class="card" style="border-top:4px solid var(--gwre)">
+        <div class="ct" style="color:var(--gwre)">Own GWRE If You Believe...</div>
+        <ul class="bl gwb">
+          <li>The decade-long P&amp;C cloud migration is in early innings and AI is a net tailwind, not a bypass, over the 3–5 year horizon</li>
+          <li>Premium multiples compress broadly and the market rewards cleaner FCF profiles</li>
+          <li>You want the lower-volatility compounder with the highest switching cost moat in software</li>
+          <li>The 50% de-rating from peak provides a more attractive entry risk/reward vs. AXON at elevated levels</li>
+        </ul>
+      </div>
+      <div class="card" style="border-top:4px solid var(--axon)">
+        <div class="ct" style="color:var(--axon)">Own AXON If You Believe...</div>
+        <ul class="bl axb">
+          <li>AI is creating an entirely new product surface area in public safety and Axon will be the primary beneficiary</li>
+          <li>International law enforcement and enterprise TAM expansion sustains 25–30%+ revenue growth for 5+ years</li>
+          <li>Hardware lock-in + legal compliance + law enforcement trust = more durable switching costs than pure SaaS</li>
+          <li>Founder-led, mission-driven cultures compound better than professional management over a decade</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fverd">
+  <h2>Committee Recommendation: 3–5 Year Investment Horizon</h2>
+  <p><strong style="color:var(--gold-light)">Our view, stated without bias for either name:</strong> Both GWRE and AXON are high-quality businesses with durable competitive moats, above-market growth rates, and credible AI stories. The decision is not between a good business and a bad business — it is between two different investment risk profiles.</p>
+  <p><strong style="color:var(--gold-light)">AXON carries the stronger fundamental momentum</strong> in the 1–3 year window. The AI revenue story is proven (not projected), the bookings backlog provides unusual forward visibility, the international TAM is dramatically under-penetrated, and founder alignment is a genuine advantage. For a growth-oriented portfolio that can stomach multiple volatility, AXON's revenue growth, data moat, and AI leadership are compelling. The primary risk is the entry valuation — at ~11.5x forward revenue, AXON requires sustained execution excellence for years. Any stumble — a federal budget freeze, an AI controversy, a large deal loss — will be punished severely.</p>
+  <p><strong style="color:var(--gold-light)">GWRE carries the more favorable risk/reward at current prices</strong> for a committee concerned about valuation discipline. After a 50%+ de-rating from peak, the stock prices in a more pessimistic scenario than the fundamentals support. The P&amp;C insurance cloud migration is a decade-long secular trend that AI is more likely to accelerate than disrupt in the near term. The switching cost moat is among the deepest in all of software. At ~24x forward FCF versus AXON's ~66x non-GAAP P/E, the margin of safety is meaningfully better.</p>
+  <p><strong style="color:var(--gold-light)">Bottom line:</strong> If the committee's primary concern is AI disruptability, AXON is the more defensible choice with proven revenue. If the committee's primary concern is valuation discipline and entry risk, GWRE is the more attractive entry. Both names deserve consideration in a 30–40 name concentrated growth strategy — the question of one vs. the other is ultimately which risk the committee is more willing to underwrite.</p>
+  <div class="vchips">
+    <span class="vc gc">GWRE: Better Value</span>
+    <span class="vc ac">AXON: Better Momentum</span>
+    <span class="vc gc2">Both: High Conviction Over 5 Years</span>
+  </div>
+</div>
+</div><!-- end panel-vs -->
+
+<!-- ===== WATCHLIST ===== -->
+<div class="panel" id="panel-watch">
+<div class="whdr">
+  <div class="wtit">Blair Software/SaaS Watchlist — Top 5 Candidates</div>
+  <div class="wsub">Screened from 82 Blair software/SaaS names · Criteria: Regulated End Markets · High Switching Costs · Domain Expertise Moat · AI Defensibility</div>
+</div>
+<div style="padding:30px 36px">
+  <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:26px">
+    <div style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:10px">Screening Framework Applied</div>
+    <div class="chips"><span class="chip neut">Regulated End Market</span><span class="chip neut">High Switching Costs</span><span class="chip neut">Domain Expertise Moat</span><span class="chip neut">Recurring Revenue</span><span class="chip neut">AI Defensibility</span><span class="chip neut">Blair Outperform</span></div>
+    <p style="font-size:12.5px;color:var(--text-muted);margin-top:10px;line-height:1.6">These five names were identified by screening the William Blair software/SaaS coverage universe (82 names) against the same primer framework applied to GWRE and AXON. They are not formal buy recommendations — they are names the committee should have on its radar as alternative ideas or future additions to the strategy.</p>
+  </div>
+
+  <div class="wc">
+    <div class="wch"><div><div class="wtk">VEEV — Veeva Systems</div><div class="wnm">Life Sciences Cloud · $171 · ~$26B Mkt Cap · Outperform (Blair)</div></div><span class="wrt">Outperform</span></div>
+    <div class="wb2">
+      <p><strong>Why It Screens Like GWRE:</strong> Veeva is the Guidewire of life sciences — the cloud operating system for pharmaceutical and biotech companies (CRM, clinical trials, regulatory, quality management). Its Vault platform stores regulated drug data with FDA-mandated compliance requirements. Switching costs are existential: a pharma company cannot change its regulatory data management system mid-drug-approval. TAM expansion mirrors GWRE: from CRM into clinical trials, quality management, R&amp;D content, and now AI-powered drug discovery tools.</p>
+      <p><strong>AI Context:</strong> FDA's increasing emphasis on real-world evidence and digital submissions is accelerating Veeva's cloud adoption — the same AI-accelerates-compliance-urgency dynamic as GWRE. Veeva's proprietary drug development dataset is irreplicable and positions it as an AI data layer for pharma, similarly to how GWRE positions itself for insurance.</p>
+      <div class="wm"><span class="wt">Regulated (FDA)</span><span class="wt">Vertical SaaS</span><span class="wt">GWRE Analog</span><span class="wt">Domain Expertise</span><span class="wt">AI Beneficiary</span></div>
+    </div>
+  </div>
+
+  <div class="wc">
+    <div class="wch"><div><div class="wtk">CCC — CCC Intelligent Solutions</div><div class="wnm">Auto Insurance &amp; Repair Technology · $5 · ~$2.8B Mkt Cap · Outperform (Blair)</div></div><span class="wrt">Outperform</span></div>
+    <div class="wb2">
+      <p><strong>Why It Belongs on This Watchlist:</strong> CCC is the cloud platform for auto insurance claims and collision repair — a direct adjacency to GWRE's P&amp;C insurance market. CCC connects 300+ insurers and 35,000+ repair facilities in a two-sided workflow network. Deep integration at the claims workflow layer makes it directly complementary to Guidewire's policy and billing capabilities.</p>
+      <p><strong>AI Context:</strong> AI-powered damage assessment (using photos to estimate repair costs) is CCC's primary AI monetization vector. CCC's proprietary database of millions of auto claims is the training foundation — no new entrant can replicate this. Valuation is more attractive than GWRE at current levels. A natural addition to an insurance-themed software sleeve.</p>
+      <div class="wm"><span class="wt">P&amp;C Insurance Adjacent</span><span class="wt">Two-Sided Platform</span><span class="wt">AI-Proven Revenue</span><span class="wt">Data Moat</span><span class="wt">GWRE Complement</span></div>
+    </div>
+  </div>
+
+  <div class="wc">
+    <div class="wch"><div><div class="wtk">TTAN — ServiceTitan</div><div class="wnm">Trades &amp; Home Services ERP · $69 · ~$7B Mkt Cap · Outperform (Blair)</div></div><span class="wrt">Outperform</span></div>
+    <div class="wb2">
+      <p><strong>Why It Screens Like GWRE in a Different Vertical:</strong> ServiceTitan is the operating system for HVAC, plumbing, electrical, and other skilled trade businesses — a licensed, regulated workforce deeply underserved by generic software. Its platform manages scheduling, dispatch, CRM, invoicing, payroll, and inventory. Contractors cannot easily switch because their entire customer and job history is embedded. Licensing requirements in the trades add regulatory defensibility similar to insurance compliance requirements.</p>
+      <p><strong>AI Context:</strong> AI-powered call coaching, job estimate optimization, and technician routing are ServiceTitan's primary AI monetization opportunities. The trades industry is acutely labor-constrained — AI that makes each technician more efficient is a high-ROI, high-willingness-to-pay purchase. Domain specificity of trades workflows creates a meaningful barrier to generic AI tools.</p>
+      <div class="wm"><span class="wt">Licensed/Regulated Workforce</span><span class="wt">Vertical SaaS</span><span class="wt">ERP-Level Stickiness</span><span class="wt">AI Labor Efficiency</span><span class="wt">GWRE Structural Analog</span></div>
+    </div>
+  </div>
+
+  <div class="wc">
+    <div class="wch"><div><div class="wtk">CLBT — Cellebrite DI</div><div class="wnm">Digital Intelligence for Law Enforcement · $14 · ~$3.3B Mkt Cap · Outperform (Blair)</div></div><span class="wrt">Outperform</span></div>
+    <div class="wb2">
+      <p><strong>Why It Belongs on This Watchlist:</strong> Cellebrite is the AXON of digital forensics — software used by law enforcement to extract, analyze, and manage digital evidence from mobile devices and cloud sources. Used in 150+ countries. Government-only customers, legal admissibility requirements, and CJIS compliance create AXON-like switching costs at a fraction of AXON's valuation — potentially a more attractive entry into the same public safety technology investment thesis.</p>
+      <p><strong>AI Context:</strong> AI is dramatically accelerating Cellebrite's value proposition — cases requiring weeks of manual digital analysis can now be completed in hours with AI-assisted extraction and pattern recognition. Its proprietary database of device extraction patterns and legal precedents is a genuine AI training data moat. Direct AXON analog in a smaller, more attractively valued package.</p>
+      <div class="wm"><span class="wt">Law Enforcement</span><span class="wt">Government-Only</span><span class="wt">AXON Analog</span><span class="wt">AI Beneficiary</span><span class="wt">Chain-of-Custody Moat</span></div>
+    </div>
+  </div>
+
+  <div class="wc">
+    <div class="wch"><div><div class="wtk">PCOR — Procore Technologies</div><div class="wnm">Construction Management Platform · $42 · ~$6.2B Mkt Cap · Outperform (Blair)</div></div><span class="wrt">Outperform</span></div>
+    <div class="wb2">
+      <p><strong>Why It Belongs on This Watchlist:</strong> Procore is the cloud platform for construction project management — a licensed, regulated industry with complex multi-party workflows (owners, general contractors, subcontractors, architects, inspectors). Once a project's documents, RFIs, submittals, and safety records are in Procore, they cannot be migrated without jeopardizing legal and compliance records. Similar GWRE dynamic: industry complexity and regulatory requirements are the moat, not just the product. Valuation has de-rated significantly from peak.</p>
+      <p><strong>AI Context:</strong> AI-powered risk identification (flagging safety issues in photos, auto-classifying change orders) is Procore's emerging AI story. Construction is one of the most data-rich yet analytically underserved industries — the AI opportunity is large and genuine. A natural compounder waiting for AI monetization to unlock.</p>
+      <div class="wm"><span class="wt">Licensed/Regulated Industry</span><span class="wt">Vertical SaaS</span><span class="wt">Multi-Party Workflow</span><span class="wt">AI Emerging</span><span class="wt">GWRE Structural Analog</span></div>
+    </div>
+  </div>
+
+  <div style="margin-top:28px">
+    <div style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)">Watchlist Summary</div>
+    <table class="dt">
+      <tr><th>Ticker</th><th>Company</th><th>Best Analog</th><th>Mkt Cap</th><th>Key Moat</th><th>Primary Risk</th></tr>
+      <tr><td><strong>VEEV</strong></td><td>Veeva Systems</td><td>GWRE (Pharma)</td><td>~$26B</td><td>FDA-regulated data + ERP switching costs</td><td>Biotech funding cycles</td></tr>
+      <tr><td><strong>CCC</strong></td><td>CCC Intelligent Solutions</td><td>GWRE (Adjacent)</td><td>~$2.8B</td><td>Two-sided insurer+repairer network + data</td><td>P&amp;C industry cycles</td></tr>
+      <tr><td><strong>TTAN</strong></td><td>ServiceTitan</td><td>GWRE (Trades)</td><td>~$7B</td><td>ERP-level switching + licensing requirements</td><td>Housing market cyclicality</td></tr>
+      <tr><td><strong>CLBT</strong></td><td>Cellebrite</td><td>AXON (Digital Forensics)</td><td>~$3.3B</td><td>Legal admissibility + CJIS compliance</td><td>Government budget sensitivity</td></tr>
+      <tr><td><strong>PCOR</strong></td><td>Procore</td><td>GWRE (Construction)</td><td>~$6.2B</td><td>Multi-party document compliance moat</td><td>Construction market cyclicality</td></tr>
+    </table>
+  </div>
+</div>
+</div><!-- end panel-watch -->
+
+<script>
+function showM(t,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.mtab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  el.classList.add('active');
+}
+function showS(co,sub,el){
+  const p=document.getElementById('panel-'+co);
+  p.querySelectorAll('.sp').forEach(x=>x.classList.remove('active'));
+  p.querySelectorAll('.stab').forEach(x=>x.classList.remove('active'));
+  document.getElementById(co+'-'+sub).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
